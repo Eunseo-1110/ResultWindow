@@ -77,17 +77,32 @@ public class ResultPanel : MonoBehaviour
     /// <returns></returns>
     IEnumerator Count(Text text, float target, float current)
     {
+        isCounting = true;   // 텍스트 카운팅 시작
+
         float duration = 0.5f; // 카운팅에 걸리는 시간 설정. 
         float offset = (target - current) / duration;
+        string countStr = "";    // 카운트 텍스트
 
+        // 현재 수가 목표 수보다 커질 때까지 반복
         while (current < target)
         {
+            // 현재 텍스트에서 입력된 카운트 텍스트 만큼 문자 삭제
+            text.text = text.text.Remove(text.text.Length - countStr.Length, countStr.Length);
+
             current += offset * Time.deltaTime;
-            text.text = ((int)current).ToString();
+            countStr = ((int)current).ToString();       // 카운트 텍스트 세팅
+
+            text.text += countStr;  // 텍스트에 카운트 텍스트 추가
             yield return null;
         }
 
+        // 현재 텍스트에서 입력된 카운트 텍스트 만큼 문자 삭제
+        text.text = text.text.Remove(text.text.Length - countStr.Length, countStr.Length);
+
+        // 목표 수 입력
         current = target;
-        text.text = ((int)current).ToString();
+        text.text += ((int)current).ToString();
+
+        isCounting = false;  // 텍스트 카운팅 종료
     }
 }
