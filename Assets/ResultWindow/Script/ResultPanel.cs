@@ -166,7 +166,7 @@ public class ResultPanel : MonoBehaviour
                         contentText.text += itemInfoArr[inx].name + " * ";
 
                         // 카운팅
-                        coutingCoroutine = StartCoroutine(Count(contentText, 0, itemInfoArr[itemInfoIndex].count, countingDuration));
+                        coutingCoroutine = StartCoroutine(Count(contentText, 0, itemInfoArr[inx].count, countingDuration));
                     }
                 }
 
