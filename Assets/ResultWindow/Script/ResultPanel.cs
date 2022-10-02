@@ -33,6 +33,8 @@ public class ResultPanel : MonoBehaviour
 
     int itemInfoIndex;   // 아이템 정보 인덱스
 
+    Coroutine coutingCoroutine;       // 카운팅 코루틴
+
     void Awake()
     {
 
@@ -66,14 +68,7 @@ public class ResultPanel : MonoBehaviour
             // 인덱스 확인(반복출력 종료 확인)
             if (itemInfoIndex >= itemInfoArr.Length)
             {
-                // 초기화
-                isResultText = false;
-                isCounting = false;
-                isEndCounting = false;
-
-                itemInfoArr = null;
-
-                buttonX.gameObject.SetActive(true);    // X버튼 오브젝트 활성화
+                ShowEnd();
                 return;
             }
 
@@ -84,11 +79,12 @@ public class ResultPanel : MonoBehaviour
                 contentText.text += itemInfoArr[itemInfoIndex].name + " * ";
 
                 // 카운팅
-                StartCoroutine(Count(contentText, 0, itemInfoArr[itemInfoIndex].count, countingDuration));
+                coutingCoroutine = StartCoroutine(Count(contentText, 0, itemInfoArr[itemInfoIndex].count, countingDuration));
             }
 
         }
     }
+
 
     /// <summary>
     /// 결과창 세팅
@@ -106,6 +102,38 @@ public class ResultPanel : MonoBehaviour
         buttonX.gameObject.SetActive(false);    // X버튼 오브젝트 비활성화
     }
 
+    /// <summary>
+    /// 결과창 텍스트 출력 스킵
+    /// </summary>
+    public void _OnSkip()
+    {
+        string reulstStr = "";      // 결과창 텍스트
+        for (int i = 0; i < itemInfoArr.Length; i++)
+        {
+            // 텍스트 입력
+            reulstStr += itemInfoArr[i].name + " * " + itemInfoArr[i].count + "\n";
+        }
+
+        StopCoroutine(coutingCoroutine);        // 카운팅 코루틴 종료
+        ShowEnd();
+
+        contentText.text = reulstStr;   // 결과창 텍스트 세팅
+    }
+
+    /// <summary>
+    /// 결과창 텍스트 출력 종료
+    /// </summary>
+    void ShowEnd()
+    {
+        // 초기화
+        isResultText = false;
+        isCounting = false;
+        isEndCounting = false;
+
+        itemInfoArr = null;
+
+        buttonX.gameObject.SetActive(true);    // X버튼 오브젝트 활성화
+    }
 
     IEnumerator ShowCounting()
     {
@@ -126,13 +154,7 @@ public class ResultPanel : MonoBehaviour
                 // 인덱스 확인(반복출력 종료 확인)
                 if (inx >= itemInfoArr.Length)
                 {
-                    // 초기화
-                    isResultText = false;
-                    isCounting = false;
-                    isEndCounting = false;
-
-                    itemInfoArr = null;
-                    buttonX.gameObject.SetActive(true);    // X버튼 오브젝트 활성화
+                    ShowEnd();
                     break;
                 }
                 else
@@ -144,7 +166,7 @@ public class ResultPanel : MonoBehaviour
                         contentText.text += itemInfoArr[inx].name + " * ";
 
                         // 카운팅
-                        StartCoroutine(Count(contentText, 0, itemInfoArr[inx].count, 0.3f));
+                        coutingCoroutine = StartCoroutine(Count(contentText, 0, itemInfoArr[itemInfoIndex].count, countingDuration));
                     }
                 }
 
@@ -153,7 +175,6 @@ public class ResultPanel : MonoBehaviour
         }
     }
 
-    // https://unitys.tistory.com/7
     /// <summary>
     /// 텍스트 카운팅
     /// </summary>
@@ -161,6 +182,7 @@ public class ResultPanel : MonoBehaviour
     /// <param name="end">목표 수</param>
     /// <param name="start">시작 수</param>
     /// <param name="duration">카운팅에 걸리는 시간</param>
+    /// 참고URL: https://unitys.tistory.com/7
     /// <returns></returns>
     IEnumerator Count(Text text, float start, float end, float duration)
     {
