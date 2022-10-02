@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +10,7 @@ public class ItemInfo
 
     public ItemInfo(string name, int count)
     {
-        this.name = name; 
+        this.name = name;
         this.count = count;
     }
 }
@@ -19,12 +18,18 @@ public class ItemInfo
 public class ResultPanel : MonoBehaviour
 {
     [SerializeField]
+    float countingDuration = 0.3f;
+
+    [SerializeField]
     Text contentText;       // 내용 텍스트
 
     ItemInfo[] itemInfoArr;   // 아이템 정보 배열
 
     bool isResultText;  // 결과창 텍스트 출력 중 확인
     bool isCounting;    // 텍스트 카운팅 확인
+    bool isEndCounting; // 카운팅 종료 확인
+
+    int itemInfoIndex;   // 아이템 정보 인덱스
 
     void Awake()
     {
@@ -45,7 +50,40 @@ public class ResultPanel : MonoBehaviour
 
     void Update()
     {
-        
+        // 텍스트 출력 확인
+        if (isResultText)
+        {
+            // 카운팅 종료 확인
+            if (isEndCounting)
+            {
+                ++itemInfoIndex;        // 인덱스 증가
+                contentText.text += "\n";   // 텍스트 줄넘김
+                isEndCounting = false;         // 카운팅 종료 false
+            }
+
+            // 인덱스 확인
+            if (itemInfoIndex >= itemInfoArr.Length)
+            {
+                // 초기화
+                isResultText = false;
+                isCounting = false;
+                isEndCounting = false;
+
+                itemInfoArr = null;
+                return;
+            }
+
+            // 카운팅 중인지 확인
+            if (!isCounting)
+            {
+                // 텍스트 입력
+                contentText.text += itemInfoArr[itemInfoIndex].name + " * ";
+
+                // 카운팅
+                StartCoroutine(Count(contentText, 0, itemInfoArr[itemInfoIndex].count, countingDuration));
+            }
+
+        }
     }
 
     /// <summary>
@@ -60,11 +98,53 @@ public class ResultPanel : MonoBehaviour
         this.itemInfoArr = itemInfoArr; // 아이템 정보 배열
         isResultText = true;        // 결과창 텍스트 출력 중
 
-        // 첫 텍스트 입력
-        contentText.text = itemInfoArr[0].name + " * ";
+        itemInfoIndex = 0;      // 아이템 정보 인덱스
+    }
 
-        // 카운팅
-        StartCoroutine(Count(contentText, itemInfoArr[0].count, 0));
+
+    IEnumerator ShowCounting()
+    {
+        int inx = 0;        // 배열 인덱스
+        while (true)
+        {
+            // 텍스트 출력 확인
+            if (isResultText)
+            {
+                // 카운팅 종료 확인
+                if (isEndCounting)
+                {
+                    ++inx;        // 인덱스 증가
+                    contentText.text += "\n";   // 텍스트 줄넘김
+                    isEndCounting = false;         // 카운팅 종료 false
+                }
+
+                // 인덱스 확인
+                if (inx >= itemInfoArr.Length)
+                {
+                    // 초기화
+                    isResultText = false;
+                    isCounting = false;
+                    isEndCounting = false;
+
+                    itemInfoArr = null;
+                    break;
+                }
+                else
+                {
+                    // 카운팅 중인지 확인
+                    if (!isCounting)
+                    {
+                        // 텍스트 입력
+                        contentText.text += itemInfoArr[inx].name + " * ";
+
+                        // 카운팅
+                        StartCoroutine(Count(contentText, 0, itemInfoArr[inx].count, 0.3f));
+                    }
+                }
+
+            }
+            yield return null;
+        }
     }
 
     // https://unitys.tistory.com/7
@@ -72,25 +152,25 @@ public class ResultPanel : MonoBehaviour
     /// 텍스트 카운팅
     /// </summary>
     /// <param name="text">텍스트 UI</param>
-    /// <param name="target">목표 수</param>
-    /// <param name="current">시작 수</param>
+    /// <param name="end">목표 수</param>
+    /// <param name="start">시작 수</param>
+    /// <param name="duration">카운팅에 걸리는 시간</param>
     /// <returns></returns>
-    IEnumerator Count(Text text, float target, float current)
+    IEnumerator Count(Text text, float start, float end, float duration)
     {
         isCounting = true;   // 텍스트 카운팅 시작
 
-        float duration = 0.5f; // 카운팅에 걸리는 시간 설정. 
-        float offset = (target - current) / duration;
+        float offset = (end - start) / duration;
         string countStr = "";    // 카운트 텍스트
 
         // 현재 수가 목표 수보다 커질 때까지 반복
-        while (current < target)
+        while (start < end)
         {
             // 현재 텍스트에서 입력된 카운트 텍스트 만큼 문자 삭제
             text.text = text.text.Remove(text.text.Length - countStr.Length, countStr.Length);
 
-            current += offset * Time.deltaTime;
-            countStr = ((int)current).ToString();       // 카운트 텍스트 세팅
+            start += offset * Time.deltaTime;
+            countStr = ((int)start).ToString();       // 카운트 텍스트 세팅
 
             text.text += countStr;  // 텍스트에 카운트 텍스트 추가
             yield return null;
@@ -100,9 +180,10 @@ public class ResultPanel : MonoBehaviour
         text.text = text.text.Remove(text.text.Length - countStr.Length, countStr.Length);
 
         // 목표 수 입력
-        current = target;
-        text.text += ((int)current).ToString();
+        start = end;
+        text.text += ((int)start).ToString();
 
         isCounting = false;  // 텍스트 카운팅 종료
+        isEndCounting = true;   // 카운팅 종료 확인
     }
 }
