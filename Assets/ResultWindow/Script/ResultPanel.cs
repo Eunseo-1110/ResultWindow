@@ -22,6 +22,8 @@ public class ResultPanel : MonoBehaviour
 
     [SerializeField]
     Text contentText;       // 내용 텍스트
+    [SerializeField]
+    Button buttonX;       // X버튼
 
     ItemInfo[] itemInfoArr;   // 아이템 정보 배열
 
@@ -61,7 +63,7 @@ public class ResultPanel : MonoBehaviour
                 isEndCounting = false;         // 카운팅 종료 false
             }
 
-            // 인덱스 확인
+            // 인덱스 확인(반복출력 종료 확인)
             if (itemInfoIndex >= itemInfoArr.Length)
             {
                 // 초기화
@@ -70,6 +72,8 @@ public class ResultPanel : MonoBehaviour
                 isEndCounting = false;
 
                 itemInfoArr = null;
+
+                buttonX.gameObject.SetActive(true);    // X버튼 오브젝트 활성화
                 return;
             }
 
@@ -99,6 +103,7 @@ public class ResultPanel : MonoBehaviour
         isResultText = true;        // 결과창 텍스트 출력 중
 
         itemInfoIndex = 0;      // 아이템 정보 인덱스
+        buttonX.gameObject.SetActive(false);    // X버튼 오브젝트 비활성화
     }
 
 
@@ -118,7 +123,7 @@ public class ResultPanel : MonoBehaviour
                     isEndCounting = false;         // 카운팅 종료 false
                 }
 
-                // 인덱스 확인
+                // 인덱스 확인(반복출력 종료 확인)
                 if (inx >= itemInfoArr.Length)
                 {
                     // 초기화
@@ -127,6 +132,7 @@ public class ResultPanel : MonoBehaviour
                     isEndCounting = false;
 
                     itemInfoArr = null;
+                    buttonX.gameObject.SetActive(true);    // X버튼 오브젝트 활성화
                     break;
                 }
                 else
