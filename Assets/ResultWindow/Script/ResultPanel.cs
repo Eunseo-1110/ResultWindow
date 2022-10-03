@@ -60,7 +60,6 @@ public class ResultPanel : MonoBehaviour
             if (isEndCounting)
             {
                 ++itemInfoIndex;        // 인덱스 증가
-                contentText.text += "\n";   // 텍스트 줄넘김
                 isEndCounting = false;         // 카운팅 종료 false
 
                 // 인덱스 확인(반복출력 종료 확인)
@@ -71,6 +70,7 @@ public class ResultPanel : MonoBehaviour
                 }
                 else
                 {
+                    contentText.text += "\n";   // 텍스트 줄넘김
                     // 텍스트 입력
                     contentText.text += itemInfoArr[itemInfoIndex].name + " * ";
 
