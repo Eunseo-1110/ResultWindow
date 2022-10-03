@@ -28,7 +28,6 @@ public class ResultPanel : MonoBehaviour
     ItemInfo[] itemInfoArr;   // 아이템 정보 배열
 
     bool isResultText;  // 결과창 텍스트 출력 중 확인
-    bool isCounting;    // 텍스트 카운팅 확인
     bool isEndCounting; // 카운팅 종료 확인
 
     int itemInfoIndex;   // 아이템 정보 인덱스
@@ -63,25 +62,22 @@ public class ResultPanel : MonoBehaviour
                 ++itemInfoIndex;        // 인덱스 증가
                 contentText.text += "\n";   // 텍스트 줄넘김
                 isEndCounting = false;         // 카운팅 종료 false
+
+                // 인덱스 확인(반복출력 종료 확인)
+                if (itemInfoIndex >= itemInfoArr.Length)
+                {
+                    ShowEnd();
+                    return;
+                }
+                else
+                {
+                    // 텍스트 입력
+                    contentText.text += itemInfoArr[itemInfoIndex].name + " * ";
+
+                    // 카운팅
+                    coutingCoroutine = StartCoroutine(Count(contentText, 0, itemInfoArr[itemInfoIndex].count, countingDuration));
+                }
             }
-
-            // 인덱스 확인(반복출력 종료 확인)
-            if (itemInfoIndex >= itemInfoArr.Length)
-            {
-                ShowEnd();
-                return;
-            }
-
-            // 카운팅 중인지 확인
-            if (!isCounting)
-            {
-                // 텍스트 입력
-                contentText.text += itemInfoArr[itemInfoIndex].name + " * ";
-
-                // 카운팅
-                coutingCoroutine = StartCoroutine(Count(contentText, 0, itemInfoArr[itemInfoIndex].count, countingDuration));
-            }
-
         }
     }
 
@@ -99,6 +95,13 @@ public class ResultPanel : MonoBehaviour
         isResultText = true;        // 결과창 텍스트 출력 중
 
         itemInfoIndex = 0;      // 아이템 정보 인덱스
+
+        // 텍스트 입력
+        contentText.text += itemInfoArr[itemInfoIndex].name + " * ";
+        // 카운팅
+        coutingCoroutine = StartCoroutine(Count(contentText, 0, itemInfoArr[itemInfoIndex].count, countingDuration));
+
+
         buttonX.gameObject.SetActive(false);    // X버튼 오브젝트 비활성화
     }
 
@@ -127,7 +130,6 @@ public class ResultPanel : MonoBehaviour
     {
         // 초기화
         isResultText = false;
-        isCounting = false;
         isEndCounting = false;
 
         itemInfoArr = null;
@@ -149,18 +151,14 @@ public class ResultPanel : MonoBehaviour
                     ++inx;        // 인덱스 증가
                     contentText.text += "\n";   // 텍스트 줄넘김
                     isEndCounting = false;         // 카운팅 종료 false
-                }
 
-                // 인덱스 확인(반복출력 종료 확인)
-                if (inx >= itemInfoArr.Length)
-                {
-                    ShowEnd();
-                    break;
-                }
-                else
-                {
-                    // 카운팅 중인지 확인
-                    if (!isCounting)
+                    // 인덱스 확인(반복출력 종료 확인)
+                    if (inx >= itemInfoArr.Length)
+                    {
+                        ShowEnd();
+                        break;
+                    }
+                    else
                     {
                         // 텍스트 입력
                         contentText.text += itemInfoArr[inx].name + " * ";
@@ -169,7 +167,6 @@ public class ResultPanel : MonoBehaviour
                         coutingCoroutine = StartCoroutine(Count(contentText, 0, itemInfoArr[inx].count, countingDuration));
                     }
                 }
-
             }
             yield return null;
         }
@@ -186,8 +183,6 @@ public class ResultPanel : MonoBehaviour
     /// <returns></returns>
     IEnumerator Count(Text text, float start, float end, float duration)
     {
-        isCounting = true;   // 텍스트 카운팅 시작
-
         float offset = (end - start) / duration;
         string countStr = "";    // 카운트 텍스트
 
@@ -211,7 +206,6 @@ public class ResultPanel : MonoBehaviour
         start = end;
         text.text += ((int)start).ToString();
 
-        isCounting = false;  // 텍스트 카운팅 종료
         isEndCounting = true;   // 카운팅 종료 확인
     }
 }
